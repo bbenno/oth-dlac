@@ -14,7 +14,8 @@ test-lex: calc test-l.txt
 
 clear: 
 	rm -rf *.o
-	rm -rf $(FNAME).yy.c
+	rm -f $(FNAME).yy.c
 	rm -rf $(FNAME)$(YEXT).*
+	rm -f $(FNAME)
 
 .PHONY: clear calc test-yacc test-lex
