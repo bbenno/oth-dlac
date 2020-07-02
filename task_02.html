@@ -1,0 +1,111 @@
+<h2>Proposed modifications</h2>
+<ul>
+	<li>operation to convert a decimal number to another base: 1210§3 = 1103, 1310§2 = 11012</li>
+	<li>further arithmetical operation</li>
+	<ul>
+		<li>reminder(%)</li>
+		<li>power(^)</li>
+		<li>factorial(!)</li>
+	</ul>
+</ul>
+<hr/>
+
+<h2>EBNF Grammar</h2>
+<pre>
+syntax = expr;
+
+expr = expr_bse;
+expr_bse = expr_add | expr_bse, "§", expr_add;
+expr_add = expr_mul | expr_add, "+", expr_mul;
+expr_mul = expr_pow | expr_mul, ("*"|"%"), expr_pow;
+expr_pow = expr_fac | expr_pow, ("^"), expr_fac;
+expr_fac = factor | expr_fac, "!";
+factor = "(", expr, ")" | number;
+
+number = zero | nonzero, {digit};
+zero = "0";
+nonzero = "1"|"2"|"3"|"4"|"5"|"6"|"7"|"8"|"9";
+digit = zero | nonzero;
+</pre>
+<hr/>
+
+<h2>calc.l</h2>
+<pre>
+%option noyywrap
+%{
+#include <stdio.h>
+%}
+
+DIGIT [0-9]
+NONZERO [1-9]
+NUMBER "0"|{NONZERO}{DIGIT}*
+WHITESPACE [ \t\n\r]
+
+%%
+{NUMBER}	{ printf("Integer: %s (%d)\n", yytext, atoi(yytext)); }
+"^"|"+"|"%"|"!"|"-"|"*"|"§"|"("|")"	printf("Operation '%s'\n", yytext);
+{WHITESPACE}+	/* ignore whitespaces */
+"E" {
+	printf("Exiting the calculator.\n");
+	return 0;
+}
+. {
+	printf("Unrecognized token: '%s' Exiting!\n", yytext);
+	return 1;
+}
+%%
+main(argc, argv)
+int argc;
+char **argv;
+{
+	/* skip over program name */
+	++argv, --argc;
+	if (argc > 0)
+		yyin = fopen(argv[0], "r"); /*Is the input file given?*/
+	else
+		yyin = stdin;
+	return yylex();
+}
+
+int yyerror() 
+{
+	printf("Error\n");
+	exit(1);
+}
+</pre>
+<hr/>
+
+<h2>Makefile</h2>
+<pre>
+FNAME=calc
+
+calc: $(FNAME).l
+	lex -o $(FNAME).yy.c $(FNAME).l
+	gcc $(FNAME).yy.c -o $(FNAME) -ll
+
+test: calc test.txt
+	./$(FNAME) test.txt || echo "\n\ntest failed\n\n"
+
+clear: 
+	rm -rf *.o
+	rm -rf $(FNAME).yy.c
+
+.PHONY: clear calc test
+</pre>
+<hr/>
+
+<h2>test.txt</h2>
+<pre>
+1+1+10001*1
+(1)
+(1+3*4!)*1*5%3+4§3%2^1!
+4§4§3!
+1!
+1
+15120
+(2!%2)!
+((1*(5))*(1+(1+1)))
+0+1^(4+23^2!^0)
+0!!
+0!^40+(31231*(3))
+</pre>
