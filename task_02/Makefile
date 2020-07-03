@@ -1,20 +1,13 @@
 FNAME=calc
-YEXT=.tab
 
-$(FNAME): $(FNAME).yy.c $(FNAME)$(YEXT).c
+$(FNAME): $(FNAME).yy.c
 	gcc $^ -o $@
 	chmod +x $@
 
-$(FNAME).yy.c: $(FNAME).l $(FNAME)$(YEXT).h
+$(FNAME).yy.c: $(FNAME).l
 	lex -o $@ $<
 
-$(FNAME)$(YEXT).h $(FNAME)$(YEXT).c: $(FNAME).y
-	yacc -d -o $(FNAME)$(YEXT).c $<
-
-test-yacc: test-y.txt calc
-	./$(FNAME) < $<
-
-test-lex: test-l.txt calc
+test: test.txt calc
 	./$(FNAME) $<
 
 clear: 
@@ -23,4 +16,4 @@ clear:
 	rm -rf $(FNAME)$(YEXT).*
 	rm -f $(FNAME)
 
-.PHONY: clear test-yacc test-lex
+.PHONY: clear test

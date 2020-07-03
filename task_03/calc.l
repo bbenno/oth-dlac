@@ -2,6 +2,7 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
+#include "calc.tab.h"
 %}
 
 DIGIT [0-9]
@@ -14,43 +15,43 @@ WHITESPACE [ \t\n\r]
 {NUMBER} {
 	printf("Integer: %s (%d)\n", yytext, atoi(yytext));
 	//yylval=atoi(yytext);
-	//return NUMBER;
+	return NUMBER;
 }
 "^" {
 	printf("Power\n");
-	//return POWER;
+	return POWER;
 }
 "+" {
 	printf("Addition\n");
-	//return ADDITION;
+	return ADDITION;
 }
 "%" {
 	printf("Reminder\n");
-	//return REMINDER;
+	return REMINDER;
 }
 "!" {
 	printf("Factorial\n");
-	//return FACTORIAL;
+	return FACTORIAL;
 }
 "-" {
 	printf("Subtraction\n");
-	//return SUBTRACTION;
+	return SUBTRACTION;
 }
 "*" {
 	printf("Multiplication\n");
-	//return MULTIPLICATION;
+	return MULTIPLICATION;
 }
 "§" {
 	printf("Base-convert\n");
-	//return BASE_CONVERT;
+	return BASE_CONVERT;
 }
 \( { 
 	printf("Bracket Begin\n");
-	//return OBRACE;
+	return OBRACE;
 }
 \) {
 	printf("Bracket End\n");
-	//return EBRACE;
+	return EBRACE;
 }
 {WHITESPACE}+	/* ignore whitespaces */;
 "E" {
@@ -64,19 +65,18 @@ WHITESPACE [ \t\n\r]
 
 %%
 
-int main(argc, argv)
-int argc;
-char **argv;
-{
-	/* skip over program name */
-	++argv, --argc;
-	if (argc > 0)
-		yyin = fopen(argv[0], "r"); /*Is the input file given?*/
-	else
-		yyin = stdin;
-	
-	yylex();
-
-	return 0;
-}
-
+//int main(argc, argv)
+//int argc;
+//char **argv;
+//{
+//	/* skip over program name */
+//	++argv, --argc;
+//	if (argc > 0)
+//		yyin = fopen(argv[0], "r"); /*Is the input file given?*/
+//	else
+//		yyin = stdin;
+//	
+//	yylex();
+//
+//	return 0;
+//}
