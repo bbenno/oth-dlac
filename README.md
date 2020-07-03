@@ -42,9 +42,11 @@ digit = zero | nonzero;
 > Write a lexical analyzer. (→ `lex`)
 
 - [_calc.l_](task_02/calc.l)
-- [_calc.y_](task_02/calc.y) (additional, but not required)
 
 ## Task 3: Syntactical Analyzer
+
+- [_calc.l_](task_03/calc.l)
+- [_calc.y_](task_03/calc.y)
 
 ## Task 4: Working Compiler
 
