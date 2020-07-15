@@ -1,9 +1,10 @@
-# DLAC Tasks
+#
+ DLAC Tasks
 
 - [x] Task 0
 - [x] Task 1
 - [x] Task 2
-- [ ] Task 3
+- [x] Task 3
 - [ ] Task 4
 
 ## Task 0: Proposed Modifications
