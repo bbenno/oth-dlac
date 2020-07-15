@@ -1,82 +1,73 @@
 %option noyywrap
+
 %{
 #include <stdio.h>
 #include <stdlib.h>
 #include "calc.tab.h"
+
+extern int yyerror (char const *s, ...);
 %}
 
 DIGIT [0-9]
 NONZERO [1-9]
 NUMBER "0"|{NONZERO}{DIGIT}*
-WHITESPACE [ \t\n\r]
+WHITESPACE [ \t]
+NEWLINE [\n\r]
 
 %%
 
 {NUMBER} {
-	printf("Integer: %s (%d)\n", yytext, atoi(yytext));
-	//yylval=atoi(yytext);
-	return NUMBER;
+	printf("[L] Integer: %d\n", atoi(yytext));
+	yylval=atoi(yytext);
+	return INTEGER;
 }
 "^" {
-	printf("Power\n");
+	printf("[L] Power\n");
 	return POWER;
 }
 "+" {
-	printf("Addition\n");
+	printf("[L] Addition\n");
 	return ADDITION;
 }
 "%" {
-	printf("Reminder\n");
+	printf("[L] Reminder\n");
 	return REMINDER;
 }
 "!" {
-	printf("Factorial\n");
+	printf("[L] Factorial\n");
 	return FACTORIAL;
 }
 "-" {
-	printf("Subtraction\n");
+	printf("[L] Subtraction\n");
 	return SUBTRACTION;
 }
 "*" {
-	printf("Multiplication\n");
+	printf("[L] Multiplication\n");
 	return MULTIPLICATION;
 }
 "§" {
-	printf("Base-convert\n");
+	printf("[L] Base-convert\n");
 	return BASE_CONVERT;
 }
-\( { 
-	printf("Bracket Begin\n");
+"(" { 
+	printf("[L] Bracket Begin\n");
 	return OBRACE;
 }
-\) {
-	printf("Bracket End\n");
+")" {
+	printf("[L] Bracket End\n");
 	return EBRACE;
 }
+{NEWLINE} {
+	printf("[L] Newline\n");
+	return END;
+}
 {WHITESPACE}+	/* ignore whitespaces */;
-"E" {
-	printf("Exiting the calculator.\n");
+"E"|"e" {
+	printf("[L] Exiting the calculator.\n");
 	return 0;
 }
 . {
-	printf("Unrecognized token: '%s' Exiting!\n", yytext);
-	return 1;
+	yyerror("[L] Unrecognized token: '%s' Exiting!\n", yytext);
 }
 
 %%
-
-//int main(argc, argv)
-//int argc;
-//char **argv;
-//{
-//	/* skip over program name */
-//	++argv, --argc;
-//	if (argc > 0)
-//		yyin = fopen(argv[0], "r"); /*Is the input file given?*/
-//	else
-//		yyin = stdin;
-//	
-//	yylex();
-//
-//	return 0;
-//}

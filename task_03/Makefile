@@ -1,8 +1,10 @@
+CC=gcc
 FNAME=calc
 YEXT=.tab
+LIB=functions.c
 
-$(FNAME): $(FNAME).yy.c $(FNAME)$(YEXT).c
-	gcc $^ -o $@
+$(FNAME): $(FNAME).yy.c $(FNAME)$(YEXT).c $(LIB)
+	$(CC) $^ -o $@
 	chmod +x $@
 
 $(FNAME).yy.c: $(FNAME).l $(FNAME)$(YEXT).h
@@ -11,16 +13,17 @@ $(FNAME).yy.c: $(FNAME).l $(FNAME)$(YEXT).h
 $(FNAME)$(YEXT).h $(FNAME)$(YEXT).c: $(FNAME).y
 	yacc -d -o $(FNAME)$(YEXT).c $<
 
-test-yacc: test-y.txt calc
-	./$(FNAME) < $<
-
-test-lex: test-l.txt calc
+test_pos: test_pos.txt calc
 	./$(FNAME) $<
+test_neg: test_neg.txt calc
+	xargs -n1 ./$(FNAME) < $<
 
-clear: 
-	rm -rf *.o
+test: test_pos test_neg
+
+clean: 
+	rm -rf *.o *.out
 	rm -f $(FNAME).yy.c
 	rm -rf $(FNAME)$(YEXT).*
 	rm -f $(FNAME)
 
-.PHONY: clear test-yacc test-lex
+.PHONY: clean test_pos test_neg test
