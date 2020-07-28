@@ -1,11 +1,11 @@
 #
  DLAC Tasks
 
-- [x] Task 0
-- [x] Task 1
-- [x] Task 2
-- [x] Task 3
-- [ ] Task 4
+- [x] Task 0: Proposed Modifications
+- [x] Task 1: EBNF Grammar
+- [x] Task 2: Lexical Analyzer (→ `lex`)
+- [x] Task 3: Syntactical Analyzer
+- [x] Task 4: Working Compiler
 
 ## Task 0: Proposed Modifications
 
@@ -37,19 +37,6 @@ zero = "0";
 nonzero = "1"|"2"|"3"|"4"|"5"|"6"|"7"|"8"|"9";
 digit = zero | nonzero;
 ```
-
-## Task 2: Lexical Analyzer
-
-> Write a lexical analyzer. (→ `lex`)
-
-- [_calc.l_](task_02/calc.l)
-
-## Task 3: Syntactical Analyzer
-
-- [_calc.l_](task_03/calc.l)
-- [_calc.y_](task_03/calc.y)
-
-## Task 4: Working Compiler
 
 
 *[DLAC]: Languages and Their Compilers
