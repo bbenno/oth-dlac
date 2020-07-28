@@ -1,0 +1,332 @@
+<h2>Proposed modifications</h2>
+<ul>
+	<li>operation to convert a decimal number to another base: 1210§3 = 1103, 1310§2 = 11012</li>
+	<li>further arithmetical operation</li>
+	<ul>
+		<li>reminder(%)</li>
+		<li>power(^)</li>
+		<li>factorial(!)</li>
+	</ul>
+</ul>
+<hr/>
+<h2>EBNF Grammar</h2>
+<pre>
+syntax = expr;
+expr = expr_bse;
+expr_bse = expr_add | expr_bse, "§", expr_add;
+expr_add = expr_mul | expr_add, "+", expr_mul;
+expr_mul = expr_pow | expr_mul, ("*"|"%"), expr_pow;
+expr_pow = expr_fac | expr_pow, ("^"), expr_fac;
+expr_fac = factor | expr_fac, "!";
+factor = "(", expr, ")" | number;
+number = zero | nonzero, {digit};
+zero = "0";
+nonzero = "1"|"2"|"3"|"4"|"5"|"6"|"7"|"8"|"9";
+digit = zero | nonzero;
+</pre>
+<hr/>
+<h2>calc.l</h2>
+<pre>
+%option noyywrap
+
+%{
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include "calc.tab.h"
+
+extern int yyerror (char const *s, ...);
+%}
+
+DIGIT [0-9]
+NONZERO [1-9]
+NUMBER "0"|{NONZERO}{DIGIT}*
+WHITESPACE [ \t]
+NEWLINE [\n\r]
+
+%%
+
+{NUMBER} {
+	printf("[L] Integer: %d\n", atoi(yytext));
+	yylval=atoi(yytext);
+	return INTEGER;
+}
+"^" {
+	printf("[L] Power\n");
+	return POWER;
+}
+"+" {
+	printf("[L] Addition\n");
+	return ADDITION;
+}
+"%" {
+	printf("[L] Reminder\n");
+	return REMINDER;
+}
+"!" {
+	printf("[L] Factorial\n");
+	return FACTORIAL;
+}
+"-" {
+	printf("[L] Subtraction\n");
+	return SUBTRACTION;
+}
+"*" {
+	printf("[L] Multiplication\n");
+	return MULTIPLICATION;
+}
+"§" {
+	printf("[L] Base-convert\n");
+	return BASE_CONVERT;
+}
+"(" { 
+	printf("[L] Bracket Begin\n");
+	return OBRACE;
+}
+")" {
+	printf("[L] Bracket End\n");
+	return EBRACE;
+}
+{NEWLINE} {
+	printf("[L] Newline\n");
+	return END;
+}
+{WHITESPACE}+	/* ignore whitespaces */;
+"E"|"e" {
+	printf("[L] Exiting the calculator.\n");
+	return 0;
+}
+. {
+	yyerror("[L] Unrecognized token: '%s' Exiting!\n", yytext);
+}
+
+%%
+</pre>
+<hr/>
+<h2>calc.y</h2>
+<pre>
+%code requires {
+	#define YYSTYPE unsigned long
+}
+
+%{
+	#include &lt;stdarg.h&gt;	/* va_start, va_list, va_end */
+	#include &lt;stdio.h&gt;	/* printf */
+	#include &lt;stdlib.h&gt;	/* exit */
+	#include "functions.h"	/* base_convert, factorial, power */
+
+	int yyerror(const char*, ...);
+	
+	extern int yylex(void);
+	extern FILE* yyin;
+%}
+
+%token INTEGER
+%token POWER ADDITION REMINDER FACTORIAL SUBTRACTION MULTIPLICATION BASE_CONVERT
+%token OBRACE EBRACE
+%token END
+
+%start syntax
+
+%%
+
+syntax:
+	| syntax expr
+	;
+
+expr:
+	END
+	|
+	expr_bse END { printf("Result: %d\n", $1); $$ = $1; }
+	;
+
+expr_bse:
+	expr_add
+	|
+	expr_bse BASE_CONVERT expr_add { $$ = base_convert($1, $3); }
+	;
+expr_add:
+	expr_mul
+	|
+	expr_add ADDITION expr_mul { $$ = $1 + $3; }
+	|
+	expr_add SUBTRACTION expr_mul { $$ = $1 - $3; }
+	;
+expr_mul:
+	expr_pow
+	|
+	expr_mul MULTIPLICATION expr_pow { $$ = $1 * $3; }
+	|
+	expr_mul REMINDER expr_pow { $$ = $1 % $3; }
+	;
+expr_pow:
+	expr_fac
+	|
+	expr_pow POWER expr_fac { $$ = power($1, $3); }
+	;
+expr_fac:
+	factor
+	|
+	expr_fac FACTORIAL { $$ = factorial($1); }
+	;
+factor:
+	OBRACE expr_bse EBRACE { $$ = $2; }
+	|
+	INTEGER { $$ = $1; }
+	;
+
+%%
+
+int yyerror(const char *fmt, ...) {
+	char* string;
+
+	va_list args;
+
+	va_start(args, fmt);
+	vasprintf(&string, fmt, args);
+	va_end(args);
+
+	fprintf(stderr, string);
+
+	exit(1);
+}
+
+int main(int argc, char** argv) {
+	int status;
+	++argv, --argc;
+	if(argc &gt; 0) {
+		if(!(yyin = fopen(argv[0],"r"))) {
+			FILE* temp = fopen("tmp.txt", "w");
+			for (int i = 0; i &lt; argc; i++)
+				fprintf(temp, "%s\n", argv[i]);
+			fclose(temp);
+			yyin = fopen("tmp.txt", "r");
+		}
+		status = yyparse();
+	}
+
+	return status;
+}
+</pre>
+<hr/>
+<h2>functions.h</h2>
+<pre>
+#ifndef FUNCTIONS
+#define FUNCTIONS
+
+#include &lt;math.h&gt;
+
+#define U64 unsigned long
+
+U64 factorial(U64);
+U64 base_convert(U64, U64);
+U64 power(U64, U64);
+
+#endif
+</pre>
+<hr/>
+<h2>functions.c</h2>
+<pre>
+#include "functions.h"
+
+U64 factorial(U64 n)
+{
+	U64 nr = 1;
+	for (int c = 1; c <= n; c++)
+		nr *= c;
+	return nr;
+}
+
+U64 base_convert(U64 n, U64 b) {
+	U64 nr = 0;
+	unsigned int rem, i = 1, step = 1;
+
+	while (n != 0) {
+		rem = n % b;
+		n /= b;
+		nr += rem * i;
+		i *= 10;
+	}
+	return nr;
+}
+
+U64 power(U64 n, U64 e) {
+	U64 nr = 1;
+
+	while(e-- &gt; 0)
+		nr *= n;
+	return nr;
+}
+</pre>
+<hr/>
+<h2>Makefile</h2>
+<pre>
+CC=gcc
+FNAME=calc
+YEXT=.tab
+LIB=functions.c
+
+$(FNAME): $(FNAME).yy.c $(FNAME)$(YEXT).c $(LIB)
+	$(CC) $^ -o $@
+	chmod +x $@
+
+$(FNAME).yy.c: $(FNAME).l $(FNAME)$(YEXT).h
+	lex -o $@ $&gt;
+
+$(FNAME)$(YEXT).h $(FNAME)$(YEXT).c: $(FNAME).y
+	yacc -d -o $(FNAME)$(YEXT).c $&gt;
+
+test_pos: test_pos.txt calc
+	./$(FNAME) $&gt;
+
+test_neg: test_neg.txt calc
+	xargs -n1 ./$(FNAME) &gt; $&gt;
+
+test: test_pos test_neg
+
+clean: 
+	rm -rf *.o *.out
+	rm -f $(FNAME).yy.c
+	rm -rf $(FNAME)$(YEXT).*
+	rm -f $(FNAME)
+
+.PHONY: clean test_pos test_neg test
+</pre>
+<hr/>
+<h2>test_pos.txt</h2>
+<pre>
+42
+(1)
+15+15
+2*65556
+1+1+10001*1
+4!
+(1+3*4!)
+1*5%3
+4§3
+(4§3)%2^1!
+4§4§3!
+1!
+1
+15120
+(2!%2)!
+((1*(5))*(1+(1+1)))
+0+1^(4+23^2!^0)
+0!!
+0!^40+(31231*(3))
+12+34!*(1231§3)+32+32+342!!^2
+E
+</pre>
+<hr/>
+<h2>test_neg.txt</h2>
+<pre>
+1_+
+0x12+1
+-34*4
++
+4++4
+54+
+123§§21
+23^()
+62+*23
++2342
+</pre>
