@@ -1,5 +1,19 @@
 # Languages and Their Compilers (DLAC) -- Summer 2020
 
+## Setup
+
+In order to setup the compiler pleas follow the following steps:
+```sh
+# 1. enter source directory of repository
+cd oth-dlac/src
+
+# 2. build compiler
+make
+
+# (optional) run test files
+make test
+```
+
 ## Tasks
 
 - [x] Task 0: Proposed Modifications
