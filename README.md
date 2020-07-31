@@ -18,9 +18,9 @@ make test
 
 - [x] Task 0: Proposed Modifications
 - [x] Task 1: EBNF Grammar
-- [x] Task 2: Lexical Analyzer (→ `lex`)
-- [x] Task 3: Syntactical Analyzer (→ `bison`|`yacc`)
-- [x] Task 4: Working Compiler
+- [x] [Task 2: Lexical Analyzer](task_02.html) (→ `lex`)
+- [x] [Task 3: Syntactical Analyzer](task_03.html) (→ `bison`|`yacc`)
+- [x] [Task 4: Working Compiler](task_04.html)
 
 ### Task 0: Proposed Modifications
 
