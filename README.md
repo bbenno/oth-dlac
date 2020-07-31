@@ -1,13 +1,14 @@
-#
- DLAC Tasks
+# Languages and Their Compilers (DLAC) -- Summer 2020
+
+## Tasks
 
 - [x] Task 0: Proposed Modifications
 - [x] Task 1: EBNF Grammar
 - [x] Task 2: Lexical Analyzer (→ `lex`)
-- [x] Task 3: Syntactical Analyzer
+- [x] Task 3: Syntactical Analyzer (→ `bison`|`yacc`)
 - [x] Task 4: Working Compiler
 
-## Task 0: Proposed Modifications
+### Task 0: Proposed Modifications
 
 > Take original definition of calculator and extend it somehow.
 
@@ -17,7 +18,7 @@
     + power(`^`)
     + factorial(`!`)
 
-## Task 1: EBNF Grammar
+### Task 1: EBNF Grammar
 
 > Define language for the calculator using EBNF syntax.
 
@@ -38,6 +39,21 @@ nonzero = "1"|"2"|"3"|"4"|"5"|"6"|"7"|"8"|"9";
 digit = zero | nonzero;
 ```
 
+### Task 2: Lexical Analyzer
+> Make a lexical analyzer for your language using your grammar.
+
+### Task 3: Syntactical Analyzer
+> Make a syntactical analyzer for your language based on your grammar and lex analysis.
+> The analyzer should check your grammar.
+
+### Task 4: Working Compiler
+> Make the compiler working, compiling to target language and calculating the numbers.
+
+## Recommended Literature
+
+- Mogensen, T. A.: Introduction to Compiler Design, e-ISBN: 978-0-85729-829-4
+- Watson, D: A Practical Approach to Compiler Construction, ISBN:  978-3-319-52789-5
+- Grune, D. et all: Modern Compiler Design, ISBN: 978-1-4614-4699- 6
 
 *[DLAC]: Languages and Their Compilers
 *[EBMF]: Extended Backus–Naur form
